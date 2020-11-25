@@ -30,6 +30,7 @@ void sx_swizzle(Class oldClass, NSString *oldSelector, Class newClass) {
 -(instancetype)init {
     if (self = [super init]) {
         self.sx_defaultFixSpace = 0;
+        self.sx_defaultRightFixSpace = -1;
         self.sx_disableFixSpace = NO;
     }
     return self;
@@ -115,7 +116,12 @@ void sx_swizzle(Class oldClass, NSString *oldSelector, Class newClass) {
 - (void)sx_setRightBarButtonItems:(NSArray<UIBarButtonItem *> *)rightBarButtonItems animated:(BOOL)animated {
     if (!UINavigationConfig.shared.sx_disableFixSpace && rightBarButtonItems.count) {//存在按钮且需要调节
         UIBarButtonItem *firstItem = rightBarButtonItems.firstObject;
+                
         CGFloat width = UINavigationConfig.shared.sx_defaultFixSpace - UINavigationConfig.shared.sx_systemSpace;
+        if (UINavigationConfig.shared.sx_defaultRightFixSpace != -1) {
+            width = UINavigationConfig.shared.sx_defaultRightFixSpace - UINavigationConfig.shared.sx_systemSpace;
+        }
+        
         if (firstItem.width == width) {//已经存在space
             [self sx_setRightBarButtonItems:rightBarButtonItems animated:animated];
         } else {
@@ -189,6 +195,10 @@ void sx_swizzle(Class oldClass, NSString *oldSelector, Class newClass) {
     NSArray<NSLayoutConstraint *> *trailingBarConstraints = [self valueForKey:@"_trailingBarConstraints"];
     if (!trailingBarConstraints) return;
     CGFloat constant = UINavigationConfig.shared.sx_systemSpace - UINavigationConfig.shared.sx_defaultFixSpace;
+    if (UINavigationConfig.shared.sx_defaultRightFixSpace != -1) {
+        constant = UINavigationConfig.shared.sx_systemSpace - UINavigationConfig.shared.sx_defaultRightFixSpace;
+    }
+    
     for (NSLayoutConstraint *constraint in trailingBarConstraints) {
         if (constraint.firstAttribute == NSLayoutAttributeTrailing &&
             constraint.secondAttribute == NSLayoutAttributeTrailing) {
